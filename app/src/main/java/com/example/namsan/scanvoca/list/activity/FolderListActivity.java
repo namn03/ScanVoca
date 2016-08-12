@@ -19,6 +19,12 @@ import com.example.namsan.scanvoca.list.adapter.FolderListAdapter;
 
 public class FolderListActivity extends BaseListActivity {
     @Override
+    String makeTitle() {
+        String title = "단어장";
+        return title;
+    }
+
+    @Override
     Cursor makeData(DBManager dbManager) {
         return dbManager.getAllFolders();
     }

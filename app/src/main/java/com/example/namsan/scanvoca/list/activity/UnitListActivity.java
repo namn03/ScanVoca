@@ -23,6 +23,11 @@ import com.example.namsan.scanvoca.list.adapter.UnitListAdapter;
 public class UnitListActivity extends BaseListActivity {
     private long mFolderId;
 
+    @Override
+    String makeTitle() {
+        String title = getDBManager().getFolderNameById(mFolderId);
+        return title;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

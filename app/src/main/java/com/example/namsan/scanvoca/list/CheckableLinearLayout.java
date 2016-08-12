@@ -20,8 +20,11 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.Checkable;
 import android.widget.LinearLayout;
+
+import com.example.namsan.scanvoca.R;
 
 /**
  * This is a simple wrapper for {@link android.widget.LinearLayout} that implements the {@link android.widget.Checkable}
@@ -49,6 +52,10 @@ public class CheckableLinearLayout extends LinearLayout implements Checkable {
     public void setChecked(boolean b) {
         if (b != mChecked) {
             mChecked = b;
+
+            CheckBox checkBox = (CheckBox) this.findViewById(R.id.check_box);
+            checkBox.setChecked(b);
+
             refreshDrawableState();
         }
     }

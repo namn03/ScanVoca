@@ -1,6 +1,8 @@
 package com.example.namsan.scanvoca.list.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.namsan.scanvoca.R;
 import com.example.namsan.scanvoca.db.DBManager;
@@ -19,16 +22,20 @@ import com.example.namsan.scanvoca.list.adapter.BaseListAdapter;
  */
 public abstract class BaseListActivity extends Activity{
 
+    private String mTitle;
     private boolean mEditEnabled;
     private DBManager mDBManager;
     private BaseListAdapter mAdapter;
     private ListView mListView;
 
-
+    /*----------------------------------*/
+    /* --------- abstrct START ---------*/
     /**
      * Provide proper Cursor which contain necessary data.
      * e.g return getAllWords();
      * */
+    abstract String makeTitle();
+
     abstract Cursor makeData(DBManager dbManager);
 
 
@@ -47,7 +54,8 @@ public abstract class BaseListActivity extends Activity{
      * */
     abstract void onEntryClick(AdapterView<?> parent, View view, int position, long id);
 
-
+    /* --------- abstrct END  ----------*/
+    /*----------------------------------*/
     public boolean getEditState() {
         return mEditEnabled;
     }
@@ -92,6 +100,10 @@ public abstract class BaseListActivity extends Activity{
         mAdapter = makeAdapter();
         mListView.setAdapter(mAdapter);
 
+        /* Set Title : it should be done after loading DB (it may use DB query) */
+        TextView title = (TextView) findViewById(R.id.title);
+        title.setText(makeTitle());
+
         /* set dialog for adding folder */
         Button add_or_delete = (Button) findViewById(R.id.btn_add_or_delete);
         Button edit = (Button) findViewById(R.id.btn_edit);
@@ -109,6 +121,17 @@ public abstract class BaseListActivity extends Activity{
 
 
     @Override
+    public void onBackPressed() {
+        if(mEditEnabled) {
+            // same effect with exiting edit state
+            onEditClick();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         mAdapter.getCursor().close();
@@ -116,14 +139,10 @@ public abstract class BaseListActivity extends Activity{
 
 
     protected void onEditClick() {
-        Button add_or_delete = (Button) this.findViewById(R.id.btn_add_or_delete);
+        Button add_or_delete = (Button) findViewById(R.id.btn_add_or_delete);
 
         if(mEditEnabled) {
-            /* reset checked status of mListView when exit edit state*/
-            for(int i = 0; i < mListView.getCount(); i++) {
-                mListView.setItemChecked(i, false);
-            }
-
+            resetCheck();
             mListView.setChoiceMode(ListView.CHOICE_MODE_NONE);
             add_or_delete.setText("Add");
         } else {
@@ -136,17 +155,45 @@ public abstract class BaseListActivity extends Activity{
         mAdapter.notifyDataSetChanged();
     }
 
+
     protected void onDeleteClick() {
-        long[] checkedItems = mListView.getCheckedItemIds();
+        final long[] checkedItems = mListView.getCheckedItemIds();
 
-        // prevent unnecessary query
+        // do nothing when no item checked
         if(checkedItems.length != 0) {
-            deleteData(mDBManager, checkedItems);
-        }
+            /* Confirm delete with new alert dialog */
+            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+            dialog.setTitle("삭제하시겠습니까?");
+            dialog.setPositiveButton("삭제", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    deleteData(mDBManager, checkedItems);
 
-        mEditEnabled = false;
-        // reflect both data changing and uncheck, hide check boxes
-        loadList();
+                    Button add_or_delete = (Button) findViewById(R.id.btn_add_or_delete);
+                    add_or_delete.setText("Add");
+
+                    mEditEnabled = false;
+                    // reflect both data changing and uncheck, hide check boxes
+                    loadList();
+                }
+            });
+            dialog.setNegativeButton("취소", null);
+
+            dialog.show();
+        }
+    }
+
+    /**
+     *  reset checked status of mListView when exit edit state
+     */
+    private void resetCheck() {
+        int visibleCount = mListView.getLastVisiblePosition() - mListView.getFirstVisiblePosition();
+        for(int i = 0; i < visibleCount; i++) {
+            // reset list view
+            mListView.setItemChecked(i, false);
+            CheckBox checkBox = (CheckBox) mListView.getChildAt(i).findViewById(R.id.check_box);
+            checkBox.setChecked(false);
+        }
     }
 
 

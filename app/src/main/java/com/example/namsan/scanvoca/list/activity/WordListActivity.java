@@ -27,6 +27,12 @@ public class WordListActivity extends BaseListActivity {
 
 
     @Override
+    String makeTitle() {
+        String title = getDBManager().getUnitNameById(mUnitId);
+        return title;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         /* get intent from FolderListActivity */
         Intent intent = getIntent();
@@ -80,6 +86,8 @@ public class WordListActivity extends BaseListActivity {
                 if(inputWord.length() > 0 && inputMean.length() > 0) {
                     getDBManager().createWord(mUnitId, inputWord, inputMean);
                 }
+
+                loadList();
             }
         });
 
@@ -96,11 +104,5 @@ public class WordListActivity extends BaseListActivity {
     @Override
     void onEntryClick(AdapterView<?> parent, View view, int position, long id) {
 
-    }
-
-    @Override
-    protected void onDeleteClick() {
-        getDBManager().deleteWords(mFolderId, mUnitId, getListView().getCheckedItemIds());
-        super.onDeleteClick();
     }
 }

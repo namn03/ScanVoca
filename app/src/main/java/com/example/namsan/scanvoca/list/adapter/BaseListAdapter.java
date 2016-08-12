@@ -2,12 +2,16 @@ package com.example.namsan.scanvoca.list.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Debug;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.Checkable;
 import android.widget.CursorAdapter;
 
 import com.example.namsan.scanvoca.R;
+import com.example.namsan.scanvoca.list.CheckableLinearLayout;
 import com.example.namsan.scanvoca.list.activity.BaseListActivity;
 
 /**
@@ -40,8 +44,7 @@ public class BaseListAdapter extends CursorAdapter {
         if(mHostActivity.getEditState()) {
             checkBox.setVisibility(View.VISIBLE);
         } else {
-            checkBox.setChecked(false);
-            checkBox.setVisibility(View.GONE);          // invisible + no space
+            checkBox.setVisibility(View.GONE);
         }
     }
 }

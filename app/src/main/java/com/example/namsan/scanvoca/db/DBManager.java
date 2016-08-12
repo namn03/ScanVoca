@@ -2,16 +2,28 @@ package com.example.namsan.scanvoca.db;
 
 import android.content.Context;
 import android.content.ContentValues;
+import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.util.Log;
 
+import com.example.namsan.scanvoca.MainActivity;
+
+import junit.framework.Assert;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLInput;
+import java.util.Arrays;
 
 
 public class DBManager extends SQLiteOpenHelper{
+    private static final String TAG = "scanvoca.db.DBManager";
+
     // TODO : check access range
     public static final String FOLDER_TABLE = "FOLDER";
     public static final String UNIT_TABLE = "UNIT";
@@ -24,7 +36,6 @@ public class DBManager extends SQLiteOpenHelper{
 
     /** folder name */
     public static final String COL_NAME = "name";
-    /** words in folder OR words in unit (created by query temporary) */
     public static final String COL_COUNT = "count";
 
 
@@ -42,22 +53,25 @@ public class DBManager extends SQLiteOpenHelper{
     private static SQLiteDatabase mDB;
 
 
-    /** private for singleton */
+    /**
+     * Private constructor for singleton
+     * */
     private DBManager(Context context, String name, CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
 
 
     private DBManager(Context context) {
-        super(context, WORD_TABLE, null, VERSION);
+        super(context, MainActivity.APP_NAME, null, VERSION);
     }
 
-
-    /*** implements SQLiteOpenHelper ***/
+    /*---------------------------------------------------*/
+    /*------- implementing SQLiteOpenHelper START -------*/
     /** create new table if db is not exist */
     @Override
     public void onCreate(SQLiteDatabase db) {
-        Log.i("scanvoca.db.DBManager", "create DB tables");
+        /*
+        Log.i(TAG, "create DB tables");
 
         db.execSQL("CREATE TABLE " + FOLDER_TABLE +
                 "( " + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -76,6 +90,7 @@ public class DBManager extends SQLiteOpenHelper{
                 COL_UNIT + " INTEGER, " +
                 COL_WORD + " TEXT, " +
                 COL_MEAN + " TEXT);");
+        */
     }
 
 
@@ -84,12 +99,19 @@ public class DBManager extends SQLiteOpenHelper{
         onCreate(db);  // TODO : version control
         return;
     }
+    /*-------- implementing SQLiteOpenHelper END --------*/
+    /*---------------------------------------------------*/
 
-
+    /**
+     * Get DBManager instance.
+     * Create new instance only if no instance exists.
+     * @param context
+     * @return singleton DBManager instance
+     */
     public static DBManager open(Context context) {
-        Log.i("scanvoca.db.DBManager", "DB open");
+        Log.i(TAG, "DB open");
         if(mInstance == null) {
-            Log.i("scanvoca.db.DBManager", "new DB instance");
+            Log.i(TAG, "new DB instance");
             mInstance = new DBManager(context);
             mDB = mInstance.getWritableDatabase();
         }
@@ -103,6 +125,8 @@ public class DBManager extends SQLiteOpenHelper{
         return mInstance;
     }
 
+    /*---------------------------------------------------*/
+    /*---------------- Insert part START ----------------*/
 
     public long createFolder(String name) {
         ContentValues content = new ContentValues();
@@ -150,6 +174,30 @@ public class DBManager extends SQLiteOpenHelper{
         return mDB.insert(WORD_TABLE, null, content);
     }
 
+    /*----------------- Insert part END -----------------*/
+    /*---------------------------------------------------*/
+
+    /*---------------------------------------------------*/
+    /*---------------- Query part START ----------------*/
+    public String getFolderNameById(long folder_id) {
+        String[] column = new String[] {COL_NAME};
+
+        Cursor cursor = mDB.query(FOLDER_TABLE, column, COL_ID + "=" + folder_id, null, null, null, null);
+        // always one reslut for query
+        cursor.moveToFirst();
+
+        return cursor.getString(cursor.getColumnIndex(COL_NAME));
+    }
+
+    public String getUnitNameById(long unit_id) {
+        String[] column = new String[] {COL_NAME};
+
+        Cursor cursor = mDB.query(UNIT_TABLE, column, COL_ID + "=" + unit_id, null, null, null, null);
+        // always one reslut for query
+        cursor.moveToFirst();
+
+        return cursor.getString(cursor.getColumnIndex(COL_NAME));
+    }
 
     public Cursor getAllFolders() {
         return mDB.query(FOLDER_TABLE, FOLDER_COLUMNS, null, null, null, null, null);
@@ -167,6 +215,9 @@ public class DBManager extends SQLiteOpenHelper{
                             " WHERE " + COL_UNIT + "=" + unit_id
                 , null);
     }
+
+    /*------------------ Query part END ------------------*/
+    /*---------------------------------------------------*/
 
     //TODO : check [] is possible
     public void deleteFolders(long[] folder_ids) {
@@ -193,7 +244,7 @@ public class DBManager extends SQLiteOpenHelper{
         // update folder count
         mDB.execSQL("UPDATE " + FOLDER_TABLE +
                     " SET " + COL_COUNT + "=" + COL_COUNT + "-" + childWords.getCount() +
-                    " WHERE " + COL_FOLDER + "=" + folder_id);
+                    " WHERE " + COL_ID + "=" + folder_id);
 
         // delete units
         mDB.execSQL("DELETE FROM " + UNIT_TABLE +
