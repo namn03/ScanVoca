@@ -1,4 +1,3 @@
-a
 package com.example.namsan.scanvoca;
 
 import android.content.res.AssetManager;

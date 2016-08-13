@@ -21,8 +21,8 @@ import com.example.namsan.scanvoca.list.adapter.BaseListAdapter;
  * Created by namsan on 2016. 7. 13..
  */
 public abstract class BaseListActivity extends Activity{
+    private static final String TAG = "BaseListActivity";
 
-    private String mTitle;
     private boolean mEditEnabled;
     private DBManager mDBManager;
     private BaseListAdapter mAdapter;
@@ -56,17 +56,17 @@ public abstract class BaseListActivity extends Activity{
 
     /* --------- abstrct END  ----------*/
     /*----------------------------------*/
+
     public boolean getEditState() {
         return mEditEnabled;
     }
 
+    public ListView getListView() {
+        return mListView;
+    }
 
     protected DBManager getDBManager() {
         return mDBManager;
-    }
-
-    protected ListView getListView() {
-        return mListView;
     }
 
 

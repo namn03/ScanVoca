@@ -22,7 +22,7 @@ import java.util.Arrays;
 
 
 public class DBManager extends SQLiteOpenHelper{
-    private static final String TAG = "scanvoca.db.DBManager";
+    private static final String TAG = "DBManager";
 
     // TODO : check access range
     public static final String FOLDER_TABLE = "FOLDER";

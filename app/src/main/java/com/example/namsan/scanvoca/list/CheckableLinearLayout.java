@@ -52,11 +52,6 @@ public class CheckableLinearLayout extends LinearLayout implements Checkable {
     public void setChecked(boolean b) {
         if (b != mChecked) {
             mChecked = b;
-
-            CheckBox checkBox = (CheckBox) this.findViewById(R.id.check_box);
-            checkBox.setChecked(b);
-
-            refreshDrawableState();
         }
     }
 
