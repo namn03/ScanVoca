@@ -208,6 +208,9 @@ public class DBManager extends SQLiteOpenHelper{
         return mDB.query(UNIT_TABLE, UNIT_COLUMNS, COL_FOLDER + "=" + folder_id, null, null, null, null);
     }
 
+    public Cursor getAllWords() {
+        return mDB.query(WORD_TABLE, WORD_COLUMNS, null, null, null, null, null);
+    }
 
     public Cursor getAllWords(long unit_id) {
         return mDB.rawQuery("SELECT * " +

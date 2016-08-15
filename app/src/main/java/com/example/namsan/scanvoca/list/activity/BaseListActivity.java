@@ -30,12 +30,13 @@ public abstract class BaseListActivity extends Activity{
 
     /*----------------------------------*/
     /* --------- abstrct START ---------*/
+
+    abstract String makeTitle();
+
     /**
      * Provide proper Cursor which contain necessary data.
      * e.g return getAllWords();
      * */
-    abstract String makeTitle();
-
     abstract Cursor makeData(DBManager dbManager);
 
 
@@ -93,9 +94,20 @@ public abstract class BaseListActivity extends Activity{
 
         /* load list view */
         mListView = (ListView) findViewById(R.id.item_list);
-        mListView.setOnItemClickListener(new OnItemClickListener());
+        mListView.setOnItemClickListener(new ListView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if(mEditEnabled) {
+                    CheckBox checkBox = (CheckBox) view.findViewById(R.id.check_box);
+                    checkBox.toggle();
+                } else {
+                    onEntryClick(parent, view, position, id);
+                }
+            }
+        });
         mListView.setChoiceMode(ListView.CHOICE_MODE_NONE);
 
+        /* register cursor to list */
         mDBManager = DBManager.open(getApplicationContext());
         mAdapter = makeAdapter();
         mListView.setAdapter(mAdapter);
@@ -107,9 +119,23 @@ public abstract class BaseListActivity extends Activity{
         /* set dialog for adding folder */
         Button add_or_delete = (Button) findViewById(R.id.btn_add_or_delete);
         Button edit = (Button) findViewById(R.id.btn_edit);
-        OnClickListener onClickListener = new OnClickListener();
-        add_or_delete.setOnClickListener(onClickListener);
-        edit.setOnClickListener(onClickListener);
+        add_or_delete.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mEditEnabled) {
+                    onDeleteClick();
+                } else {
+                    onAddClick();
+                }
+            }
+        });
+
+        edit.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onEditClick();
+            }
+        });
     }
 
 
@@ -193,38 +219,6 @@ public abstract class BaseListActivity extends Activity{
             mListView.setItemChecked(i, false);
             CheckBox checkBox = (CheckBox) mListView.getChildAt(i).findViewById(R.id.check_box);
             checkBox.setChecked(false);
-        }
-    }
-
-
-    private class OnClickListener implements Button.OnClickListener {
-        @Override
-        public void onClick(View view) {
-            switch(view.getId()) {
-                case R.id.btn_add_or_delete:
-                    if(mEditEnabled) {
-                        onDeleteClick();
-                    } else {
-                        onAddClick();
-                    }
-                    break;
-                case R.id.btn_edit:
-                    onEditClick();
-                    break;
-            }
-        }
-    }
-
-
-    private class OnItemClickListener implements ListView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            if(mEditEnabled) {
-                CheckBox checkBox = (CheckBox) view.findViewById(R.id.check_box);
-                checkBox.toggle();
-            } else {
-                onEntryClick(parent, view, position, id);
-            }
         }
     }
 }

@@ -9,6 +9,7 @@ import android.widget.ImageButton;
 import android.content.Intent;
 
 import com.example.namsan.scanvoca.list.activity.FolderListActivity;
+import com.example.namsan.scanvoca.study.StudyActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,7 +26,9 @@ public class MainActivity extends AppCompatActivity {
         public void onClick (View view) {
             Intent intent;
             switch (view.getId()) {
-                case R.id.btn_go_study :
+                case R.id.btn_go_study:
+                    intent=new Intent(MainActivity.this, StudyActivity.class);
+                    startActivity(intent);
                     break;
                 case R.id.btn_go_folderlist :
                     intent=new Intent(MainActivity.this, FolderListActivity.class);
