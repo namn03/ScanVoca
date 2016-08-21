@@ -12,6 +12,7 @@ import android.widget.CursorAdapter;
 import android.widget.ListView;
 
 import com.example.namsan.scanvoca.R;
+import com.example.namsan.scanvoca.db.DBHelper;
 import com.example.namsan.scanvoca.db.DBManager;
 import com.example.namsan.scanvoca.list.CheckableLinearLayout;
 import com.example.namsan.scanvoca.list.activity.BaseListActivity;
@@ -52,7 +53,7 @@ public class BaseListAdapter extends CursorAdapter {
         *  */
         ListView listView = mHostActivity.getListView();
         long[] checkedItems = listView.getCheckedItemIds();
-        long cursorId = cursor.getLong(cursor.getColumnIndex(DBManager.COL_ID));
+        long cursorId = DBHelper.getId(cursor);
         boolean checked = Arrays.binarySearch(checkedItems, cursorId) >= 0;
 
         if(mHostActivity.getEditState()) {

@@ -23,30 +23,6 @@ import java.util.Arrays;
 
 public class DBManager extends SQLiteOpenHelper{
     private static final String TAG = "DBManager";
-
-    // TODO : check access range
-    public static final String FOLDER_TABLE = "FOLDER";
-    public static final String UNIT_TABLE = "UNIT";
-    public static final String WORD_TABLE = "VOCA";
-
-    /** unique id of raw */
-    public static final String COL_ID = "_id";
-    public static final String COL_FOLDER = "folder";
-    public static final String COL_UNIT = "unit";
-
-    /** folder name */
-    public static final String COL_NAME = "name";
-    public static final String COL_COUNT = "count";
-
-
-    public static final String COL_WORD = "word";
-    public static final String COL_MEAN = "mean";
-
-    public static final String[] FOLDER_COLUMNS = {COL_ID, COL_NAME, COL_COUNT};
-    public static final String[] UNIT_COLUMNS = {COL_ID, COL_NAME, COL_FOLDER, COL_COUNT};
-    public static final String[] WORD_COLUMNS = {COL_ID, COL_FOLDER, COL_UNIT, COL_WORD, COL_MEAN};
-    public static final String[] WORD_QUERY_COLUMNS = {COL_ID, COL_WORD, COL_MEAN};
-
     public static final int VERSION = 1;
 
     private static DBManager mInstance = null;
@@ -130,48 +106,49 @@ public class DBManager extends SQLiteOpenHelper{
 
     public long createFolder(String name) {
         ContentValues content = new ContentValues();
-        content.put(COL_NAME, name);
-        content.put(COL_COUNT, 0);
+        content.put(DBHelper.COL_NAME, name);
+        content.put(DBHelper.COL_COUNT, 0);
 
-        return mDB.insert(FOLDER_TABLE, null, content);
+        return mDB.insert(DBHelper.FOLDER_TABLE, null, content);
     }
 
 
     public long createUnit(long folder_id, String unit_name) {
         ContentValues content = new ContentValues();
-        content.put(COL_NAME, unit_name);
-        content.put(COL_FOLDER, folder_id);
-        content.put(COL_COUNT, 0);
+        content.put(DBHelper.COL_NAME, unit_name);
+        content.put(DBHelper.COL_FOLDER, folder_id);
+        content.put(DBHelper.COL_COUNT, 0);
 
-        return mDB.insert(UNIT_TABLE, null, content);
+        return mDB.insert(DBHelper.UNIT_TABLE, null, content);
     }
 
 
     public long createWord(long unit_id, String word, String mean) {
         ContentValues content = new ContentValues();
-        content.put(COL_UNIT, unit_id);
-        content.put(COL_WORD, word);
-        content.put(COL_MEAN, mean);
+        content.put(DBHelper.COL_UNIT, unit_id);
+        content.put(DBHelper.COL_WORD, word);
+        content.put(DBHelper.COL_MEAN, mean);
 
         // +1 unit count
-        mDB.execSQL("UPDATE " + UNIT_TABLE +
-                    " SET " + COL_COUNT + "=" + COL_COUNT + "+1" +
-                    " WHERE " + COL_ID + "=" + unit_id);
+        mDB.execSQL("UPDATE " + DBHelper.UNIT_TABLE +
+                    " SET " + DBHelper.COL_COUNT + "=" + DBHelper.COL_COUNT + "+1" +
+                    " WHERE " + DBHelper.COL_ID + "=" + unit_id);
 
 
         /* get parent folder id */
-        String[] folderColumn = {COL_FOLDER};
-        Cursor unit = mDB.query(UNIT_TABLE, folderColumn, COL_ID + "=" + unit_id, null, null, null, null);
+        String[] folderColumn = {DBHelper.COL_FOLDER};
+        Cursor unit = mDB.query(DBHelper.UNIT_TABLE, folderColumn,
+                                DBHelper.COL_ID + "=" + unit_id, null, null, null, null);
         unit.moveToFirst();
-        long folder_id = unit.getLong(unit.getColumnIndex(COL_FOLDER));
+        long folder_id = DBHelper.getId(unit);
 
         /* +1 folder count */
-        mDB.execSQL("UPDATE " + FOLDER_TABLE +
-                    " SET " + COL_COUNT + "=" + COL_COUNT + "+1" +
-                    " WHERE " + COL_ID + "=" + folder_id);
+        mDB.execSQL("UPDATE " + DBHelper.FOLDER_TABLE +
+                " SET " + DBHelper.COL_COUNT + "=" + DBHelper.COL_COUNT + "+1" +
+                " WHERE " + DBHelper.COL_ID + "=" + folder_id);
 
         unit.close();
-        return mDB.insert(WORD_TABLE, null, content);
+        return mDB.insert(DBHelper.WORD_TABLE, null, content);
     }
 
     /*----------------- Insert part END -----------------*/
@@ -180,82 +157,84 @@ public class DBManager extends SQLiteOpenHelper{
     /*---------------------------------------------------*/
     /*---------------- Query part START ----------------*/
     public String getFolderNameById(long folder_id) {
-        String[] column = new String[] {COL_NAME};
+        String[] column = new String[] {DBHelper.COL_NAME};
 
-        Cursor cursor = mDB.query(FOLDER_TABLE, column, COL_ID + "=" + folder_id, null, null, null, null);
+        Cursor cursor = mDB.query(DBHelper.FOLDER_TABLE, column,
+                                  DBHelper.COL_ID + "=" + folder_id, null, null, null, null);
         // always one reslut for query
         cursor.moveToFirst();
 
-        return cursor.getString(cursor.getColumnIndex(COL_NAME));
+        return DBHelper.getName(cursor);
     }
 
     public String getUnitNameById(long unit_id) {
-        String[] column = new String[] {COL_NAME};
+        String[] column = new String[] {DBHelper.COL_NAME};
 
-        Cursor cursor = mDB.query(UNIT_TABLE, column, COL_ID + "=" + unit_id, null, null, null, null);
+        Cursor cursor = mDB.query(DBHelper.UNIT_TABLE, column,
+                                  DBHelper.COL_ID + "=" + unit_id, null, null, null, null);
         // always one reslut for query
         cursor.moveToFirst();
 
-        return cursor.getString(cursor.getColumnIndex(COL_NAME));
+        return DBHelper.getName(cursor);
     }
 
     public Cursor getAllFolders() {
-        return mDB.query(FOLDER_TABLE, FOLDER_COLUMNS, null, null, null, null, null);
+        return mDB.query(DBHelper.FOLDER_TABLE, DBHelper.FOLDER_COLUMNS, null, null, null, null, null);
     }
 
 
     public Cursor getAllUnits(long folder_id) {
-        return mDB.query(UNIT_TABLE, UNIT_COLUMNS, COL_FOLDER + "=" + folder_id, null, null, null, null);
+        return mDB.query(DBHelper.UNIT_TABLE, DBHelper.UNIT_COLUMNS,
+                DBHelper.COL_FOLDER + "=" + folder_id, null, null, null, null);
     }
 
     public Cursor getAllWords() {
-        return mDB.query(WORD_TABLE, WORD_COLUMNS, null, null, null, null, null);
+        return mDB.query(DBHelper.WORD_TABLE, DBHelper.WORD_COLUMNS, null, null, null, null, null);
     }
 
     public Cursor getAllWords(long unit_id) {
         return mDB.rawQuery("SELECT * " +
-                            " FROM " + WORD_TABLE +
-                            " WHERE " + COL_UNIT + "=" + unit_id
+                " FROM " + DBHelper.WORD_TABLE +
+                " WHERE " + DBHelper.COL_UNIT + "=" + unit_id
                 , null);
     }
 
     /*------------------ Query part END ------------------*/
     /*---------------------------------------------------*/
-
     //TODO : check [] is possible
     public void deleteFolders(long[] folder_ids) {
         String queryIds = java.util.Arrays.toString(folder_ids).replace('[', '(').replace(']', ')');
 
-        mDB.execSQL("DELETE FROM " + WORD_TABLE +
-                    " WHERE " + COL_FOLDER + " IN " + queryIds);
+        mDB.execSQL("DELETE FROM " + DBHelper.WORD_TABLE +
+                    " WHERE " + DBHelper.COL_FOLDER + " IN " + queryIds);
 
-        mDB.execSQL("DELETE FROM " + UNIT_TABLE +
-                    " WHERE " + COL_FOLDER + " IN " + queryIds);
+        mDB.execSQL("DELETE FROM " + DBHelper.UNIT_TABLE +
+                    " WHERE " + DBHelper.COL_FOLDER + " IN " + queryIds);
 
-        mDB.execSQL("DELETE FROM " + FOLDER_TABLE +
-                    " WHERE " + COL_ID + " IN " + queryIds);
+        mDB.execSQL("DELETE FROM " + DBHelper.FOLDER_TABLE +
+                    " WHERE " + DBHelper.COL_ID + " IN " + queryIds);
     }
 
 
     public void deleteUnits(long folder_id, long[] unit_ids) {
         String queryIds = java.util.Arrays.toString(unit_ids).replace('[', '(').replace(']', ')');
 
-        Cursor childWords = mDB.rawQuery("SELECT " + COL_ID +
-                                        " FROM " + WORD_TABLE +
-                                        " WHERE " + COL_UNIT + " IN " + queryIds, null);
+        Cursor childWords = mDB.rawQuery("SELECT " + DBHelper.COL_ID +
+                                        " FROM " + DBHelper.WORD_TABLE +
+                                        " WHERE " + DBHelper.COL_UNIT + " IN " + queryIds, null);
 
         // update folder count
-        mDB.execSQL("UPDATE " + FOLDER_TABLE +
-                    " SET " + COL_COUNT + "=" + COL_COUNT + "-" + childWords.getCount() +
-                    " WHERE " + COL_ID + "=" + folder_id);
+        mDB.execSQL("UPDATE " + DBHelper.FOLDER_TABLE +
+                    " SET " + DBHelper.COL_COUNT + "=" + DBHelper.COL_COUNT + "-" + childWords.getCount() +
+                    " WHERE " + DBHelper.COL_ID + "=" + folder_id);
 
         // delete units
-        mDB.execSQL("DELETE FROM " + UNIT_TABLE +
-                " WHERE " + COL_ID + " IN " + queryIds);
+        mDB.execSQL("DELETE FROM " + DBHelper.UNIT_TABLE +
+                " WHERE " + DBHelper.COL_ID + " IN " + queryIds);
 
         // delete words
-        mDB.execSQL("DELETE FROM " + WORD_TABLE +
-                    " WHERE " + COL_UNIT + " IN " + queryIds);
+        mDB.execSQL("DELETE FROM " + DBHelper.WORD_TABLE +
+                    " WHERE " + DBHelper.COL_UNIT + " IN " + queryIds);
     }
 
 
@@ -263,18 +242,35 @@ public class DBManager extends SQLiteOpenHelper{
         String queryIds = java.util.Arrays.toString(word_ids).replace('[', '(').replace(']', ')');
 
         // Update folder count
-        mDB.execSQL("UPDATE " + FOLDER_TABLE +
-                " SET " + COL_COUNT + "=" + COL_COUNT + "-" + String.valueOf(word_ids.length) +
-                " WHERE " + COL_ID + "=" + folder_id);
+        mDB.execSQL("UPDATE " + DBHelper.FOLDER_TABLE +
+                " SET " + DBHelper.COL_COUNT + "=" +
+                DBHelper.COL_COUNT + "-" + String.valueOf(word_ids.length) +
+                " WHERE " + DBHelper.COL_ID + "=" + folder_id);
 
         // update unit count
-        mDB.execSQL("UPDATE " + UNIT_TABLE +
-                    " SET " + COL_COUNT + "=" + COL_COUNT + "-" + String.valueOf(word_ids.length) +
-                    " WHERE " + COL_ID + "=" + unit_id);
+        mDB.execSQL("UPDATE " + DBHelper.UNIT_TABLE +
+                    " SET " + DBHelper.COL_COUNT + "=" +
+                DBHelper.COL_COUNT + "-" + String.valueOf(word_ids.length) +
+                    " WHERE " + DBHelper.COL_ID + "=" + unit_id);
 
         // Delete words
-        mDB.execSQL("DELETE FROM " + WORD_TABLE +
-                " WHERE " + COL_ID + " IN " + queryIds);
+        mDB.execSQL("DELETE FROM " + DBHelper.WORD_TABLE +
+                " WHERE " + DBHelper.COL_ID + " IN " + queryIds);
+    }
 
+    public int getMemory(long word_id) {
+        String[] memoryColumn = {DBHelper.COL_MEMORY};
+        Cursor cursor = mDB.query(DBHelper.WORD_TABLE, memoryColumn,
+                DBHelper.COL_ID + "=" + word_id, null, null, null, null);
+        cursor.moveToFirst();
+
+        return DBHelper.getMemory(cursor);
+    }
+
+
+    public void setMemory(long word_id, int new_memory) {
+        mDB.execSQL("UPDATE " + DBHelper.WORD_TABLE +
+                " SET " + DBHelper.COL_MEMORY + "=" + new_memory +
+                " WHERE " + DBHelper.COL_ID + "=" + word_id);
     }
 }

@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
+import com.example.namsan.scanvoca.db.DBHelper;
 import com.example.namsan.scanvoca.db.DBManager;
 import com.example.namsan.scanvoca.R;
 
@@ -23,8 +24,8 @@ public class WordListAdapter extends BaseListAdapter {
         final TextView textName = (TextView) view.findViewById(R.id.text_name);
         final TextView textCount = (TextView) view.findViewById(R.id.text_word);
 
-        textName.setText(cursor.getString(cursor.getColumnIndex(DBManager.COL_WORD)));
-        textCount.setText(cursor.getString(cursor.getColumnIndex(DBManager.COL_MEAN)));
+        textName.setText(DBHelper.getWord(cursor));
+        textCount.setText(DBHelper.getMean(cursor));
 
         super.bindView(view, context, cursor);
     }

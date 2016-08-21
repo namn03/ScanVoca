@@ -9,6 +9,7 @@ import android.widget.CheckBox;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
+import com.example.namsan.scanvoca.db.DBHelper;
 import com.example.namsan.scanvoca.db.DBManager;
 import com.example.namsan.scanvoca.R;
 
@@ -25,8 +26,8 @@ public class FolderListAdapter extends BaseListAdapter {
         final TextView textName = (TextView) view.findViewById(R.id.text_name);
         final TextView textCount = (TextView) view.findViewById(R.id.text_count);
 
-        textName.setText(cursor.getString(cursor.getColumnIndex(DBManager.COL_NAME)));
-        textCount.setText(String.valueOf(cursor.getLong(cursor.getColumnIndex(DBManager.COL_COUNT))));
+        textName.setText(DBHelper.getName(cursor));
+        textCount.setText(String.valueOf(DBHelper.getCount(cursor)));
 
         super.bindView(view, context, cursor);
     }
