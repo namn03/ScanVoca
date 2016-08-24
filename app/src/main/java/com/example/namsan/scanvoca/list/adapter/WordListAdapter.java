@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.namsan.scanvoca.db.DBHelper;
@@ -23,9 +24,11 @@ public class WordListAdapter extends BaseListAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         final TextView textName = (TextView) view.findViewById(R.id.text_name);
         final TextView textCount = (TextView) view.findViewById(R.id.text_word);
+        final ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.progress_memory);
 
         textName.setText(DBHelper.getWord(cursor));
         textCount.setText(DBHelper.getMean(cursor));
+        progressBar.setProgress(DBHelper.getMemory(cursor));
 
         super.bindView(view, context, cursor);
     }
@@ -34,8 +37,7 @@ public class WordListAdapter extends BaseListAdapter {
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        View v = inflater.inflate(R.layout.item_word_entry, parent, false);
 
-        return v;
+        return inflater.inflate(R.layout.item_word_entry, parent, false);
     }
 }

@@ -17,8 +17,6 @@ import com.example.namsan.scanvoca.db.DBManager;
 public class StudyActivity extends Activity {
     final private String TAG = "StudyActivity";
 
-    final private int STUDY_SUCCESS_SCORE = 50;
-
     private DBManager mDB;
     private Cursor mCursor;
     private TextView mWord;
@@ -94,7 +92,7 @@ public class StudyActivity extends Activity {
 
 
     private void studySuccess(long currentId) {
-        mDB.setMemory(currentId, STUDY_SUCCESS_SCORE);
+        mDB.setStrength(currentId, 0.01);
     }
 
     private void studyFail(long currentId) {

@@ -15,9 +15,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
     public final static String APP_NAME = "ScanVoca";
+    public static Calendar calendar = Calendar.getInstance();
     private final static String TAG = "MainActivity";
 
     /** inner class for on click listener */
@@ -65,7 +67,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadDBFile() {
         /* load default DB file to proper position */
-        File dbPath = getDatabasePath(new String(APP_NAME));
+        String path = new String(APP_NAME);
+        File dbPath = getDatabasePath(path);
 
         if(dbPath.exists()) {
             return;

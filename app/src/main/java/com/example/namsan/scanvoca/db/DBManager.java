@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLInput;
 import java.util.Arrays;
+import java.util.Calendar;
 
 
 public class DBManager extends SQLiteOpenHelper{
@@ -73,7 +74,6 @@ public class DBManager extends SQLiteOpenHelper{
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onCreate(db);  // TODO : version control
-        return;
     }
     /*-------- implementing SQLiteOpenHelper END --------*/
     /*---------------------------------------------------*/
@@ -81,7 +81,7 @@ public class DBManager extends SQLiteOpenHelper{
     /**
      * Get DBManager instance.
      * Create new instance only if no instance exists.
-     * @param context
+     * @param context application context
      * @return singleton DBManager instance
      */
     public static DBManager open(Context context) {
@@ -163,8 +163,10 @@ public class DBManager extends SQLiteOpenHelper{
                                   DBHelper.COL_ID + "=" + folder_id, null, null, null, null);
         // always one reslut for query
         cursor.moveToFirst();
+        String name = DBHelper.getName(cursor);
+        cursor.close();
 
-        return DBHelper.getName(cursor);
+        return name;
     }
 
     public String getUnitNameById(long unit_id) {
@@ -172,10 +174,13 @@ public class DBManager extends SQLiteOpenHelper{
 
         Cursor cursor = mDB.query(DBHelper.UNIT_TABLE, column,
                                   DBHelper.COL_ID + "=" + unit_id, null, null, null, null);
+
         // always one reslut for query
         cursor.moveToFirst();
+        String name = DBHelper.getName(cursor);
+        cursor.close();
 
-        return DBHelper.getName(cursor);
+        return name;
     }
 
     public Cursor getAllFolders() {
@@ -206,7 +211,7 @@ public class DBManager extends SQLiteOpenHelper{
         String queryIds = java.util.Arrays.toString(folder_ids).replace('[', '(').replace(']', ')');
 
         mDB.execSQL("DELETE FROM " + DBHelper.WORD_TABLE +
-                    " WHERE " + DBHelper.COL_FOLDER + " IN " + queryIds);
+                " WHERE " + DBHelper.COL_FOLDER + " IN " + queryIds);
 
         mDB.execSQL("DELETE FROM " + DBHelper.UNIT_TABLE +
                     " WHERE " + DBHelper.COL_FOLDER + " IN " + queryIds);
@@ -220,13 +225,15 @@ public class DBManager extends SQLiteOpenHelper{
         String queryIds = java.util.Arrays.toString(unit_ids).replace('[', '(').replace(']', ')');
 
         Cursor childWords = mDB.rawQuery("SELECT " + DBHelper.COL_ID +
-                                        " FROM " + DBHelper.WORD_TABLE +
-                                        " WHERE " + DBHelper.COL_UNIT + " IN " + queryIds, null);
+                " FROM " + DBHelper.WORD_TABLE +
+                " WHERE " + DBHelper.COL_UNIT + " IN " + queryIds, null);
 
         // update folder count
         mDB.execSQL("UPDATE " + DBHelper.FOLDER_TABLE +
                     " SET " + DBHelper.COL_COUNT + "=" + DBHelper.COL_COUNT + "-" + childWords.getCount() +
                     " WHERE " + DBHelper.COL_ID + "=" + folder_id);
+
+        childWords.close();
 
         // delete units
         mDB.execSQL("DELETE FROM " + DBHelper.UNIT_TABLE +
@@ -259,18 +266,23 @@ public class DBManager extends SQLiteOpenHelper{
     }
 
     public int getMemory(long word_id) {
-        String[] memoryColumn = {DBHelper.COL_MEMORY};
-        Cursor cursor = mDB.query(DBHelper.WORD_TABLE, memoryColumn,
+        Cursor cursor = mDB.query(DBHelper.WORD_TABLE, DBHelper.MEMORY_COLUMNS,
                 DBHelper.COL_ID + "=" + word_id, null, null, null, null);
-        cursor.moveToFirst();
 
-        return DBHelper.getMemory(cursor);
+        cursor.moveToFirst();
+        int memory = DBHelper.getMemory(cursor);
+        cursor.close();
+
+        return memory;
     }
 
 
-    public void setMemory(long word_id, int new_memory) {
+    public void setStrength(long word_id, double new_strength) {
+        long currentDate = System.currentTimeMillis() / (1000 * 60);
+
         mDB.execSQL("UPDATE " + DBHelper.WORD_TABLE +
-                " SET " + DBHelper.COL_MEMORY + "=" + new_memory +
-                " WHERE " + DBHelper.COL_ID + "=" + word_id);
+                    " SET " + DBHelper.COL_STRENGTH + "=" + new_strength + ", " +
+                              DBHelper.COL_DATE + "=" + currentDate +
+                    " WHERE " + DBHelper.COL_ID + "=" + word_id);
     }
 }

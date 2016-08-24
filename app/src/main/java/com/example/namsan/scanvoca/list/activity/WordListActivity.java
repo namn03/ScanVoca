@@ -27,9 +27,9 @@ public class WordListActivity extends BaseListActivity {
 
 
     @Override
+    // TODO : intent로 그냥 이름 전달받는것 검토 굳이 쿼리 할 필요가...
     String makeTitle() {
-        String title = getDBManager().getUnitNameById(mUnitId);
-        return title;
+        return getDBManager().getUnitNameById(mUnitId);
     }
 
     @Override
