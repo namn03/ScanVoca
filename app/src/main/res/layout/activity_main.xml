@@ -8,80 +8,43 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.obelab.scanvoca.MainActivity"
-    android:gravity="center"
     android:orientation="vertical">
 
     <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:layout_margin="10dp">
-
-        <ProgressBar
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/progressBar" />
-    </LinearLayout>
-
-    <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_weight="3">
+        android:gravity="center">
 
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/btn_go_study"
-            android:src="@android:drawable/ic_menu_gallery"
-            android:layout_margin="20dp" />
+            android:id="@+id/btn_home"
+            android:src="@android:drawable/ic_menu_gallery" />
 
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/btn_go_folderlist"
-            android:src="@android:drawable/ic_menu_gallery"
-            android:layout_margin="20dp" />
+            android:id="@+id/btn_voca"
+            android:src="@android:drawable/ic_menu_gallery"/>
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btn_study"
+            android:src="@android:drawable/ic_menu_gallery"/>
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btn_setting"
+            android:src="@android:drawable/ic_menu_gallery"/>
     </LinearLayout>
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_weight="3">
-
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/btn_go_test"
-            android:src="@android:drawable/ic_menu_gallery"
-            android:layout_margin="20dp" />
-
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/btn_go_setting"
-            android:src="@android:drawable/ic_menu_gallery"
-            android:layout_margin="20dp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_weight="0">
-
-        <Button
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="Scan!"
-            android:id="@+id/button"
-            android:layout_gravity="center_horizontal" />
-    </LinearLayout>
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:id="@+id/fragment" />
 
 </LinearLayout>
